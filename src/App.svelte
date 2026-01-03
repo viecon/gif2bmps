@@ -353,77 +353,87 @@
     }
 
     :global(body) {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #e8ecf1 0%, #d1d8e0 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f8f9fa;
         min-height: 100vh;
-        padding: 20px;
+        padding: 40px 20px;
     }
 
     .container {
-        max-width: 800px;
+        max-width: 640px;
         margin: 0 auto;
     }
 
     h1 {
-        color: #2d3436;
-        text-align: center;
-        margin-bottom: 30px;
+        color: #1a1a1a;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+        margin-bottom: 32px;
     }
 
     .upload-area {
-        background: white;
-        border-radius: 16px;
-        padding: 40px;
-        text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        margin-bottom: 20px;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 16px;
     }
 
     .drop-zone {
-        border: 3px dashed #636e72;
-        border-radius: 12px;
-        padding: 60px 20px;
+        border: 1.5px dashed #d0d0d0;
+        border-radius: 8px;
+        padding: 48px 24px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        background: #f5f6fa;
+        transition: all 0.15s ease;
+        background: #fafafa;
     }
 
-    .drop-zone:hover, .drop-zone.dragover {
-        background: #dfe6e9;
-        border-color: #2d3436;
+    .drop-zone:hover {
+        border-color: #999;
+        background: #f5f5f5;
+    }
+    
+    .drop-zone.dragover {
+        border-color: #666;
+        background: #f0f0f0;
     }
 
     .drop-zone-icon {
-        color: #636e72;
-        margin-bottom: 15px;
+        color: #999;
+        margin-bottom: 12px;
     }
 
     .drop-zone-text {
-        color: #666;
-        font-size: 18px;
+        color: #333;
+        font-size: 15px;
+        font-weight: 500;
     }
 
     .drop-zone-hint {
         color: #999;
-        font-size: 14px;
-        margin-top: 10px;
+        font-size: 13px;
+        margin-top: 6px;
     }
 
     .file-list {
-        margin-top: 20px;
-        text-align: left;
+        margin-top: 24px;
     }
 
     .file-item {
         display: flex;
         align-items: center;
-        padding: 12px;
-        background: #f5f5f5;
+        padding: 10px 12px;
+        background: #fafafa;
+        border: 1px solid #eee;
         border-radius: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         cursor: grab;
-        transition: all 0.2s ease;
-        border: 2px solid transparent;
+        transition: all 0.15s ease;
+    }
+
+    .file-item:hover {
+        background: #f5f5f5;
     }
 
     .file-item:active {
@@ -431,35 +441,34 @@
     }
 
     .file-item.dragging {
-        opacity: 0.5;
-        background: #e0e0e0;
+        opacity: 0.4;
     }
 
     .file-item.drag-over {
-        border-color: #2d3436;
-        background: #dfe6e9;
+        border-color: #333;
+        background: #f0f0f0;
     }
 
     .file-item-drag-handle {
-        margin-right: 12px;
-        color: #999;
+        margin-right: 10px;
+        color: #ccc;
         display: flex;
         align-items: center;
         cursor: grab;
     }
 
-    .file-item-drag-handle:active {
-        cursor: grabbing;
+    .file-item-drag-handle:hover {
+        color: #999;
     }
 
     .file-item-preview {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
         margin-right: 12px;
-        border-radius: 6px;
+        border-radius: 4px;
         overflow: hidden;
         background: #fff;
-        border: 1px solid #ddd;
+        border: 1px solid #e5e5e5;
         flex-shrink: 0;
     }
 
@@ -469,80 +478,83 @@
         object-fit: contain;
     }
 
-    .file-item-icon {
-        margin-right: 12px;
-        color: #636e72;
-        display: flex;
-        align-items: center;
-    }
-
     .file-item-name {
         flex: 1;
+        font-size: 14px;
         font-weight: 500;
-        color: #333;
+        color: #1a1a1a;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .file-item-size {
-        color: #888;
-        font-size: 14px;
+        color: #999;
+        font-size: 12px;
         margin-left: 12px;
     }
 
     .file-item-order {
-        background: #2d3436;
-        color: white;
-        font-size: 12px;
-        padding: 2px 8px;
-        border-radius: 12px;
-        margin-left: 12px;
-        font-weight: 600;
+        background: #f0f0f0;
+        color: #666;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+        font-weight: 500;
     }
 
     .file-item-remove {
-        background: #ff4757;
-        color: white;
+        background: none;
+        color: #ccc;
         border: none;
-        border-radius: 50%;
         width: 24px;
         height: 24px;
         cursor: pointer;
-        margin-left: 12px;
-        font-size: 14px;
+        margin-left: 8px;
+        font-size: 18px;
         line-height: 1;
+        border-radius: 4px;
+        transition: all 0.15s;
     }
 
     .file-item-remove:hover {
-        background: #ff3344;
+        background: #fee;
+        color: #e55;
     }
 
     .drag-hint {
-        margin-top: 12px;
-        font-size: 13px;
-        color: #888;
+        margin-top: 16px;
+        font-size: 12px;
+        color: #999;
+        text-align: center;
     }
 
     .convert-btn {
-        background: #2d3436;
-        color: white;
+        background: #1a1a1a;
+        color: #fff;
         border: none;
-        padding: 16px 48px;
-        font-size: 18px;
-        border-radius: 50px;
+        padding: 14px 32px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 8px;
         cursor: pointer;
-        margin-top: 20px;
-        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 24px;
+        transition: all 0.15s;
+        width: 100%;
     }
 
     .convert-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(45, 52, 54, 0.3);
+        background: #333;
+    }
+
+    .convert-btn:active:not(:disabled) {
+        transform: scale(0.98);
     }
 
     .convert-btn:disabled {
-        opacity: 0.6;
+        background: #e5e5e5;
+        color: #999;
         cursor: not-allowed;
     }
 
@@ -551,71 +563,81 @@
     }
 
     .progress-bar {
-        height: 20px;
-        background: #e0e0e0;
-        border-radius: 10px;
+        height: 4px;
+        background: #e5e5e5;
+        border-radius: 2px;
         overflow: hidden;
     }
 
     .progress-fill {
         height: 100%;
-        background: #2d3436;
-        transition: width 0.3s ease;
+        background: #1a1a1a;
+        transition: width 0.2s ease;
     }
 
     .progress-text {
-        margin-top: 10px;
+        margin-top: 8px;
         color: #666;
-        font-size: 14px;
+        font-size: 12px;
+        text-align: center;
     }
 
     .status {
-        margin-top: 15px;
-        padding: 12px;
-        border-radius: 8px;
+        margin-top: 16px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 13px;
     }
 
     .status.success {
-        background: #d4edda;
-        color: #155724;
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
     }
 
     .status.error {
-        background: #f8d7da;
-        color: #721c24;
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
     }
 
     .info-section {
-        background: white;
-        border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 24px;
     }
 
     .info-section h2 {
-        color: #333;
-        margin-bottom: 15px;
+        color: #1a1a1a;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
     }
 
     .info-section p {
         color: #666;
+        font-size: 14px;
         line-height: 1.6;
     }
 
     .info-section ul {
         color: #666;
-        margin-left: 20px;
-        margin-top: 10px;
+        font-size: 13px;
+        margin-left: 16px;
+        margin-top: 12px;
+        line-height: 1.8;
     }
 
     .info-section li {
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
 
     .info-section code {
-        background: #f0f0f0;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: monospace;
+        background: #f5f5f5;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-family: 'SF Mono', Monaco, monospace;
     }
 </style>
