@@ -4,6 +4,7 @@
     import { createBMP } from './lib/bmpEncoder.js';
 
     let selectedFiles = $state([]);
+    let filePreviews = $state({}); // 儲存每個檔案的預覽 URL
     let isDragover = $state(false);
     let isProcessing = $state(false);
     let progress = $state(0);
@@ -11,6 +12,10 @@
     let status = $state({ type: '', message: '' });
 
     let fileInput;
+    
+    // 拖曳排序狀態
+    let draggedIndex = $state(null);
+    let dragOverIndex = $state(null);
 
     // 使用 Canvas 進行圖片 resize（雙線性插值）
     function resizeFrame(frame, targetWidth, targetHeight) {
@@ -76,13 +81,65 @@
             if (file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif')) {
                 if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
                     selectedFiles = [...selectedFiles, file];
+                    // 建立預覽 URL
+                    const previewUrl = URL.createObjectURL(file);
+                    filePreviews = { ...filePreviews, [file.name + file.size]: previewUrl };
                 }
             }
         }
     }
 
     function removeFile(index) {
+        const file = selectedFiles[index];
+        const key = file.name + file.size;
+        // 釋放預覽 URL
+        if (filePreviews[key]) {
+            URL.revokeObjectURL(filePreviews[key]);
+            const newPreviews = { ...filePreviews };
+            delete newPreviews[key];
+            filePreviews = newPreviews;
+        }
         selectedFiles = selectedFiles.filter((_, i) => i !== index);
+    }
+
+    // 拖曳排序相關函數
+    function handleItemDragStart(e, index) {
+        draggedIndex = index;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index);
+    }
+
+    function handleItemDragOver(e, index) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (draggedIndex !== null && draggedIndex !== index) {
+            dragOverIndex = index;
+        }
+    }
+
+    function handleItemDragLeave() {
+        dragOverIndex = null;
+    }
+
+    function handleItemDrop(e, index) {
+        e.preventDefault();
+        if (draggedIndex !== null && draggedIndex !== index) {
+            const newFiles = [...selectedFiles];
+            const [draggedFile] = newFiles.splice(draggedIndex, 1);
+            newFiles.splice(index, 0, draggedFile);
+            selectedFiles = newFiles;
+        }
+        draggedIndex = null;
+        dragOverIndex = null;
+    }
+
+    function handleItemDragEnd() {
+        draggedIndex = null;
+        dragOverIndex = null;
+    }
+
+    function getPreviewUrl(file) {
+        return filePreviews[file.name + file.size] || '';
     }
 
     function formatSize(bytes) {
@@ -213,20 +270,38 @@
         {#if selectedFiles.length > 0}
             <div class="file-list">
                 {#each selectedFiles as file, index (file.name + file.size)}
-                    <div class="file-item">
-                        <span class="file-item-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
+                    <div 
+                        class="file-item"
+                        class:dragging={draggedIndex === index}
+                        class:drag-over={dragOverIndex === index}
+                        draggable="true"
+                        ondragstart={(e) => handleItemDragStart(e, index)}
+                        ondragover={(e) => handleItemDragOver(e, index)}
+                        ondragleave={handleItemDragLeave}
+                        ondrop={(e) => handleItemDrop(e, index)}
+                        ondragend={handleItemDragEnd}
+                    >
+                        <span class="file-item-drag-handle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="9" cy="6" r="2"/>
+                                <circle cx="15" cy="6" r="2"/>
+                                <circle cx="9" cy="12" r="2"/>
+                                <circle cx="15" cy="12" r="2"/>
+                                <circle cx="9" cy="18" r="2"/>
+                                <circle cx="15" cy="18" r="2"/>
                             </svg>
                         </span>
+                        <div class="file-item-preview">
+                            <img src={getPreviewUrl(file)} alt={file.name} />
+                        </div>
                         <span class="file-item-name">{file.name}</span>
                         <span class="file-item-size">{formatSize(file.size)}</span>
+                        <span class="file-item-order">#{index + 1}</span>
                         <button class="file-item-remove" onclick={() => removeFile(index)}>×</button>
                     </div>
                 {/each}
             </div>
+            <p class="drag-hint">💡 拖曳項目可調整順序，順序會影響輸出的 GIF 編號</p>
         {/if}
         
         <button 
@@ -344,6 +419,52 @@
         background: #f5f5f5;
         border-radius: 8px;
         margin-bottom: 8px;
+        cursor: grab;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+    }
+
+    .file-item:active {
+        cursor: grabbing;
+    }
+
+    .file-item.dragging {
+        opacity: 0.5;
+        background: #e0e0e0;
+    }
+
+    .file-item.drag-over {
+        border-color: #2d3436;
+        background: #dfe6e9;
+    }
+
+    .file-item-drag-handle {
+        margin-right: 12px;
+        color: #999;
+        display: flex;
+        align-items: center;
+        cursor: grab;
+    }
+
+    .file-item-drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .file-item-preview {
+        width: 48px;
+        height: 48px;
+        margin-right: 12px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #ddd;
+        flex-shrink: 0;
+    }
+
+    .file-item-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
     }
 
     .file-item-icon {
@@ -357,11 +478,25 @@
         flex: 1;
         font-weight: 500;
         color: #333;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .file-item-size {
         color: #888;
         font-size: 14px;
+        margin-left: 12px;
+    }
+
+    .file-item-order {
+        background: #2d3436;
+        color: white;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 12px;
+        font-weight: 600;
     }
 
     .file-item-remove {
@@ -379,6 +514,12 @@
 
     .file-item-remove:hover {
         background: #ff3344;
+    }
+
+    .drag-hint {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #888;
     }
 
     .convert-btn {
