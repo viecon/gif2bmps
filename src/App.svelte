@@ -268,13 +268,15 @@
         >
         
         {#if selectedFiles.length > 0}
-            <div class="file-list">
+            <div class="file-list" role="list" aria-label="已選擇的 GIF 檔案">
                 {#each selectedFiles as file, index (file.name + file.size)}
                     <div 
                         class="file-item"
                         class:dragging={draggedIndex === index}
                         class:drag-over={dragOverIndex === index}
                         draggable="true"
+                        role="listitem"
+                        aria-grabbed={draggedIndex === index}
                         ondragstart={(e) => handleItemDragStart(e, index)}
                         ondragover={(e) => handleItemDragOver(e, index)}
                         ondragleave={handleItemDragLeave}
