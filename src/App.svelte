@@ -10,6 +10,7 @@
     let progress = $state(0);
     let progressText = $state('');
     let status = $state({ type: '', message: '' });
+    let gifInfo = $state(null); // 儲存 GIF 資訊用於生成代碼
 
     let fileInput;
     
@@ -147,6 +148,42 @@
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
+    
+    function generateCodeSnippet() {
+        if (!gifInfo || gifInfo.length === 0) return '';
+        
+        const framesList = '0, ' + gifInfo.map(info => info.frameCount).join(', ');
+        const widthsList = '0, ' + gifInfo.map(info => info.scaledWidth).join(', ');
+        const heightsList = '0, ' + gifInfo.map(info => info.scaledHeight).join(', ');
+        
+        return `const int numberOfStates = ${gifInfo.length};
+const int gifFrames[numberOfStates + 1] = {${framesList}};
+
+// 設定每個 GIF 的寬、高（縮放後）
+const int gifW[numberOfStates + 1] = {${widthsList}};
+const int gifH[numberOfStates + 1] = {${heightsList}};`;
+    }
+    
+    async function copyCode() {
+        const code = generateCodeSnippet();
+        try {
+            await navigator.clipboard.writeText(code);
+            status = {
+                type: 'success',
+                message: '代碼已複製到剪貼簿！'
+            };
+            setTimeout(() => {
+                if (status.message === '代碼已複製到剪貼簿！') {
+                    status = { type: '', message: '' };
+                }
+            }, 2000);
+        } catch (err) {
+            status = {
+                type: 'error',
+                message: '複製失敗，請手動選擇複製'
+            };
+        }
+    }
 
     async function convert() {
         if (selectedFiles.length === 0) return;
@@ -163,6 +200,7 @@
             // 首先計算總幀數
             progressText = '正在分析 GIF 檔案...';
             const allFrames = [];
+            const gifInfoData = [];
 
             for (let gifIndex = 0; gifIndex < selectedFiles.length; gifIndex++) {
                 const file = selectedFiles[gifIndex];
@@ -171,6 +209,22 @@
                 const frames = parser.parse();
                 allFrames.push({ gifIndex, frames });
                 totalFrames += frames.length;
+                
+                // 收集 GIF 資訊（使用第一幀的原始尺寸）
+                if (frames.length > 0) {
+                    const maxDimension = Math.max(frames[0].width, frames[0].height);
+                    const scale = 128 / maxDimension;
+                    const scaledWidth = Math.round(frames[0].width * scale);
+                    const scaledHeight = Math.round(frames[0].height * scale);
+                    
+                    gifInfoData.push({
+                        frameCount: frames.length,
+                        width: frames[0].width,
+                        height: frames[0].height,
+                        scaledWidth: scaledWidth,
+                        scaledHeight: scaledHeight
+                    });
+                }
             }
 
             progressText = `正在轉換 ${totalFrames} 幀...`;
@@ -179,8 +233,13 @@
             for (const { gifIndex, frames } of allFrames) {
                 for (let frameIndex = 0; frameIndex < frames.length; frameIndex++) {
                     const frame = frames[frameIndex];
-                    // Resize 幀到 128x128
-                    const resizedFrame = resizeFrame(frame, 128, 128);
+                    // 計算等比例縮放後的尺寸（最長邊為 128）
+                    const maxDimension = Math.max(frame.width, frame.height);
+                    const scale = 128 / maxDimension;
+                    const targetWidth = Math.round(frame.width * scale);
+                    const targetHeight = Math.round(frame.height * scale);
+                    
+                    const resizedFrame = resizeFrame(frame, targetWidth, targetHeight);
                     const bmpData = createBMP(resizedFrame.width, resizedFrame.height, resizedFrame.data);
                     const filename = `frame${gifIndex + 1}-${frameIndex}.bmp`;
                     zip.file(filename, bmpData);
@@ -220,6 +279,9 @@
                 type: 'success',
                 message: `成功轉換 ${totalFrames} 幀！ZIP 檔案已開始下載。`
             };
+            
+            // 儲存 GIF 資訊
+            gifInfo = gifInfoData;
 
         } catch (error) {
             console.error(error);
@@ -326,6 +388,22 @@
         {#if status.message}
             <div class="status {status.type}">
                 {status.message}
+            </div>
+        {/if}
+        
+        {#if gifInfo && gifInfo.length > 0}
+            <div class="code-section">
+                <div class="code-header">
+                    <h3>Arduino code</h3>
+                    <button class="copy-btn" onclick={copyCode}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        複製
+                    </button>
+                </div>
+                <pre class="code-block"><code>{generateCodeSnippet()}</code></pre>
             </div>
         {/if}
     </div>
@@ -639,5 +717,67 @@
         border-radius: 3px;
         font-size: 12px;
         font-family: 'SF Mono', Monaco, monospace;
+    }
+    
+    .code-section {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    
+    .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    
+    .code-header h3 {
+        color: #1a1a1a;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .copy-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #fff;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .copy-btn:hover {
+        background: #f5f5f5;
+        border-color: #999;
+    }
+    
+    .copy-btn:active {
+        transform: scale(0.98);
+    }
+    
+    .code-block {
+        background: #1e1e1e;
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        margin: 0;
+    }
+    
+    .code-block code {
+        font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #d4d4d4;
+        background: transparent;
+        padding: 0;
+        white-space: pre;
     }
 </style>
