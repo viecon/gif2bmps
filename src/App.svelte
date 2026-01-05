@@ -11,6 +11,7 @@
     let progressText = $state('');
     let status = $state({ type: '', message: '' });
     let gifInfo = $state(null); // 儲存 GIF 資訊用於生成代碼
+    let isCopied = $state(false); // 複製狀態
 
     let fileInput;
     
@@ -168,14 +169,9 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         const code = generateCodeSnippet();
         try {
             await navigator.clipboard.writeText(code);
-            status = {
-                type: 'success',
-                message: '代碼已複製到剪貼簿！'
-            };
+            isCopied = true;
             setTimeout(() => {
-                if (status.message === '代碼已複製到剪貼簿！') {
-                    status = { type: '', message: '' };
-                }
+                isCopied = false;
             }, 2000);
         } catch (err) {
             status = {
@@ -385,22 +381,31 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
             </div>
         {/if}
         
-        {#if status.message}
-            <div class="status {status.type}">
-                {status.message}
-            </div>
-        {/if}
+        <div class="status-container">
+            {#if status.message}
+                <div class="status {status.type}">
+                    {status.message}
+                </div>
+            {/if}
+        </div>
         
         {#if gifInfo && gifInfo.length > 0}
             <div class="code-section">
                 <div class="code-header">
                     <h3>Arduino code</h3>
-                    <button class="copy-btn" onclick={copyCode}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                        複製
+                    <button class="copy-btn" class:copied={isCopied} onclick={copyCode}>
+                        {#if isCopied}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            已複製
+                        {:else}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            複製
+                        {/if}
                     </button>
                 </div>
                 <pre class="code-block"><code>{generateCodeSnippet()}</code></pre>
@@ -628,6 +633,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
 
     .convert-btn:active:not(:disabled) {
         transform: scale(0.98);
+        transform-origin: center;
     }
 
     .convert-btn:disabled {
@@ -659,12 +665,31 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         font-size: 12px;
         text-align: center;
     }
+    
+    .status-container {
+        min-height: 57px;
+        margin-top: 16px;
+    }
 
     .status {
-        margin-top: 16px;
         padding: 12px 16px;
         border-radius: 6px;
         font-size: 13px;
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        animation: statusFadeIn 0.2s ease forwards;
+    }
+    
+    @keyframes statusFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .status.success {
@@ -754,13 +779,25 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         transition: all 0.15s ease;
     }
     
+    .copy-btn.copied {
+        background: #f0fdf4;
+        border-color: #86efac;
+        color: #166534;
+    }
+    
     .copy-btn:hover {
         background: #f5f5f5;
         border-color: #999;
     }
     
+    .copy-btn.copied:hover {
+        background: #dcfce7;
+        border-color: #86efac;
+    }
+    
     .copy-btn:active {
         transform: scale(0.98);
+        transform-origin: center;
     }
     
     .code-block {
