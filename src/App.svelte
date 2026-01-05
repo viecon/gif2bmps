@@ -419,9 +419,6 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         <ul>
             <li>支援上傳多個 GIF 檔案</li>
             <li>自動解析每個 GIF 的所有幀（coalesce）</li>
-            <li>輸出尺寸：128×128</li>
-            <li>輸出檔名格式：<code>frame{'{'}GIF編號{'}'}-{'{'}幀編號{'}'}.bmp</code>（GIF 從 1 開始，幀從 0 開始）</li>
-            <li>輸出格式：BMP3（Windows 3.x BITMAPINFOHEADER）</li>
             <li>所有 BMP 檔案會打包成 <code>frames.zip</code> 下載</li>
             <li>所有處理都在瀏覽器本地完成，不會上傳到伺服器</li>
         </ul>
@@ -449,23 +446,22 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
 
     h1 {
         color: #1a1a1a;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 600;
-        letter-spacing: -0.5px;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
     }
 
     .upload-area {
         background: #fff;
         border: 1px solid #e5e5e5;
-        border-radius: 12px;
-        padding: 32px;
+        border-radius: 6px;
+        padding: 24px;
         margin-bottom: 16px;
     }
 
     .drop-zone {
         border: 1.5px dashed #d0d0d0;
-        border-radius: 8px;
+        border-radius: 6px;
         padding: 48px 24px;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -509,7 +505,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         padding: 10px 12px;
         background: #fafafa;
         border: 1px solid #eee;
-        border-radius: 8px;
+        border-radius: 6px;
         margin-bottom: 6px;
         cursor: grab;
         transition: all 0.15s ease;
@@ -617,12 +613,12 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         background: #1a1a1a;
         color: #fff;
         border: none;
-        padding: 14px 32px;
+        padding: 12px 24px;
         font-size: 14px;
         font-weight: 500;
-        border-radius: 8px;
+        border-radius: 4px;
         cursor: pointer;
-        margin-top: 24px;
+        margin-top: 20px;
         transition: all 0.15s;
         width: 100%;
     }
@@ -673,7 +669,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
 
     .status {
         padding: 12px 16px;
-        border-radius: 6px;
+        border-radius: 4px;
         font-size: 13px;
         display: flex;
         align-items: center;
@@ -707,13 +703,13 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
     .info-section {
         background: #fff;
         border: 1px solid #e5e5e5;
-        border-radius: 12px;
+        border-radius: 6px;
         padding: 24px;
     }
 
     .info-section h2 {
         color: #1a1a1a;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         margin-bottom: 12px;
     }
@@ -747,8 +743,8 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
     .code-section {
         background: #fff;
         border: 1px solid #e5e5e5;
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 6px;
+        padding: 24px;
         margin-bottom: 16px;
     }
     
@@ -761,7 +757,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
     
     .code-header h3 {
         color: #1a1a1a;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
     }
     
@@ -771,7 +767,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
         gap: 6px;
         background: #fff;
         border: 1px solid #d0d0d0;
-        border-radius: 6px;
+        border-radius: 4px;
         padding: 6px 12px;
         font-size: 13px;
         color: #333;
@@ -802,7 +798,7 @@ const int gifH[numberOfStates + 1] = {${heightsList}};`;
     
     .code-block {
         background: #1e1e1e;
-        border-radius: 8px;
+        border-radius: 6px;
         padding: 16px;
         overflow-x: auto;
         margin: 0;
